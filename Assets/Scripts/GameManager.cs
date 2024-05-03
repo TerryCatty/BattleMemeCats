@@ -1,6 +1,7 @@
 using System;
 using System.Runtime.InteropServices;
 using UnityEngine;
+using UnityEngine.UI;
 
 [System.Serializable]
 public class GameInfo
@@ -13,6 +14,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private GameObject mainMenu;
     [SerializeField] private GameObject menuUI;
     [SerializeField] private GameObject gameUI;
+    [SerializeField] private GameObject[] unitsButtons;
 
     [SerializeField] private GameObject parentGameScene;
     private LevelComponent[] gameScene;
@@ -28,9 +30,14 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private GameObject pausePanel;
 
+
+    [SerializeField] private Image fillBar;
+
     public GameInfo gameInfo;
 
     [SerializeField] private int maxLevels = 3;
+
+    private int currentIndexLevel = 0;
 
     [SerializeField] private int indexUnit = 0;
 
@@ -44,6 +51,17 @@ public class GameManager : MonoBehaviour
 
     [SerializeField] private float timeToShowAd = 120;
     [SerializeField] private float timer;
+
+
+    private bool isSpeedx2 = true;
+    private float timeSpeed;
+    private bool adForSpeed = true;
+
+
+    private GameObject prevButton;
+
+    [DllImport("__Internal")]
+    private static extern void IncreaseSpeedTimeExtern();
 
     [DllImport("__Internal")]
     private static extern void ShowAdvExtern();
@@ -61,22 +79,7 @@ public class GameManager : MonoBehaviour
     {
         if (Instance == null)
         {
-            Instance = this;
-            indexUnit = 0;
-
-            gameScene = parentGameScene.GetComponentsInChildren<LevelComponent>();
-
-            for (int i = 1; i < gameScene.Length; i++)
-            {
-                gameScene[i].gameObject.SetActive(false);
-
-            }
-
-            backgroundUI.SetActive(true);
-            gameUI.SetActive(false);
-            parentGameScene.SetActive(false);
-
-            DontDestroyOnLoad(gameObject);
+            Init();
         }
         else if (Instance == this)
         { 
@@ -86,10 +89,47 @@ public class GameManager : MonoBehaviour
        
     }
 
+    private void Init()
+    {
+        Instance = this;
+        indexUnit = 0;
+
+
+        gameScene = parentGameScene.GetComponentsInChildren<LevelComponent>();
+
+        for (int i = 1; i < gameScene.Length; i++)
+        {
+            gameScene[i].gameObject.SetActive(false);
+
+        }
+
+        backgroundUI.SetActive(true);
+        gameUI.SetActive(false);
+        parentGameScene.SetActive(false);
+
+
+        DontDestroyOnLoad(gameObject);
+    }
+
+    private void ResetTowers()
+    {
+        foreach (UnitTower tower in backgroundUI.GetComponentsInChildren<UnitTower>())
+        {
+            tower.Init();
+        }
+    }
+
     private void Start()
     {
         timer = timeToShowAd;
-        LoadExtern();
+        try
+        {
+           LoadExtern();
+        }
+        catch
+        {
+
+        }
     }
 
     private void Update()
@@ -104,6 +144,11 @@ public class GameManager : MonoBehaviour
         }
     }
 
+    public void ChangeFillBar(float value)
+    {
+        fillBar.fillAmount = value;
+    }
+
     public void StartGame(Transform levelButton)
     {
         indexUnit = 0;
@@ -115,10 +160,21 @@ public class GameManager : MonoBehaviour
 
     private void LoadLevel(int indexLevel)
     {
-        if (gameInfo.levels < indexLevel) return;
+        if (gameInfo.levels < indexLevel)
+        {
+            BackToMainMenu();
+            return;
+        }
 
+        ResetTowers();
 
         DeleteUnits();
+
+        currentIndexLevel = indexLevel;
+        adForSpeed = true;
+        isSpeedx2 = false;
+        timeSpeed = 1f;
+        Unpause();
 
         defeatPanel.SetActive(false);
         winPanel.SetActive(false);
@@ -135,6 +191,8 @@ public class GameManager : MonoBehaviour
         backgroundUI.SetActive(false);
 
         playerTower.ChangeUnit(0);
+
+        CheckColorUnits(0);
     }
 
     private void TurnOnLevel(int indexLevel)
@@ -177,6 +235,9 @@ public class GameManager : MonoBehaviour
         CheckShowAd();
         DeleteUnits();
 
+        adForSpeed = true;
+        isSpeedx2 = false;
+        timeSpeed = 1f;
         Unpause();
 
         parentGameScene.SetActive(false);
@@ -188,7 +249,35 @@ public class GameManager : MonoBehaviour
 
 
         backgroundUI.SetActive(true);
+
+
     }
+
+    public void IncreaseSpeedTimeAdv()
+    {
+
+        try
+        {
+            if (adForSpeed)
+            {
+
+                Pause();
+
+                adForSpeed = false;
+                IncreaseSpeedTimeExtern();
+            }
+            else
+            {
+                ChangeSpeedTime();
+            }
+        }
+        catch
+        {
+            ChangeSpeedTime();
+        }
+    }
+
+   
 
     public void OpenMenuLevels()
     {
@@ -202,6 +291,12 @@ public class GameManager : MonoBehaviour
             i++;
         }
         menuUI.SetActive(false);
+    }
+
+    public void CloseChoosingLevelPanel()
+    {
+        levelsMenu.SetActive(false);
+        menuUI.SetActive(true);
     }
 
     public void OpenSettings()
@@ -240,19 +335,54 @@ public class GameManager : MonoBehaviour
 
     public void Unpause()
     {
-        Time.timeScale = 1f;
+        Time.timeScale = timeSpeed;
     }
 
-    public void IncreaseSpeedTime()
+    public void ChangeSpeedTime()
     {
-        Time.timeScale = 2f;
+        timeSpeed = isSpeedx2 ? 1f : 2f;
+        isSpeedx2 = timeSpeed == 2f;
+
+
+        Unpause();
+        Time.timeScale = timeSpeed;
     }
+
+    
 
     public void ChangeUnit(GameObject button)
     {
         int index = int.Parse(button.gameObject.name[button.gameObject.name.Length - 1].ToString()) - 1;
 
+
         playerTower.ChangeUnit(index);
+
+    }
+
+    public void CheckColorUnits(int choosingUnit)
+    {
+        UnitsSwitch[] unitsList = playerTower.GetUnitsCount();
+        int kills = playerTower.GetCountKills();
+        foreach(GameObject unit in unitsButtons)
+        {
+            int index = int.Parse(unit.gameObject.name[unit.gameObject.name.Length - 1].ToString()) - 1;
+
+           
+            if (index >= unitsList.Length) return;
+
+
+            if (choosingUnit == index && kills >= unitsList[index].killsRequire)
+                unit.GetComponent<Image>().color = Color.white;
+            else
+                unit.GetComponent<Image>().color = Color.gray;
+
+
+
+            if (kills >= unitsList[index].killsRequire)
+                unit.GetComponentsInChildren<Image>()[1].color = Color.white;
+            else
+                unit.GetComponentsInChildren<Image>()[1].color = Color.black;
+        }
     }
 
     public void Spawn()
@@ -303,15 +433,23 @@ public class GameManager : MonoBehaviour
     {
         ResetAdvBoolean();
         ClosePausePanel();
-        LoadLevel(gameInfo.levels);
+        LoadLevel(currentIndexLevel + 1);
     }
 
     public void SecondChance()
     {
         if (secondChanceIsUse) return;
+        try
+        {
+           SecondChanceExtern();
+        }
+        catch
+        {
 
-        SecondChanceExtern();
+        }
     }
+
+    
 
     public void AdvIsShowSecondChance()
     {
@@ -332,8 +470,14 @@ public class GameManager : MonoBehaviour
     public void HealTower()
     {
         if(healIsUse) return;
-
-        HealTowerExtern();
+        try
+        {
+          HealTowerExtern();
+        }
+        catch
+        {
+            AdvIsShowHeal();
+        }
     }
 
     public void AdvIsShowHeal()
@@ -351,12 +495,19 @@ public class GameManager : MonoBehaviour
     private void CheckShowAd()
     {
         if (justAdvIsReady == false) return;
+        try
+        {
+           ShowAdvExtern();
 
-        ShowAdvExtern();
+            justAdvIsReady = false;
 
-        justAdvIsReady = false;
+            timer = timeToShowAd;
+        }
+        catch
+        {
 
-        timer = timeToShowAd;
+        }
+
     }
 
     private void SaveData()
@@ -364,8 +515,15 @@ public class GameManager : MonoBehaviour
         /*PlayerPrefs.SetInt("OpenLevels", levels);
         PlayerPrefs.Save();*/
 
-        string jsonString = JsonUtility.ToJson(gameInfo);
-        SaveExtern(jsonString);
+        string jsonString = JsonUtility.ToJson(gameInfo); 
+        try
+        {
+           SaveExtern(jsonString);
+        }
+        catch
+        {
+
+        }
     }
 
     private void LoadData(string value)
@@ -381,6 +539,8 @@ public class GameManager : MonoBehaviour
         gameInfo.levels = 1;
         SaveData();
     }
+
+    
 }
 
 

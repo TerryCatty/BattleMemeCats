@@ -20,13 +20,10 @@ public class UnitWarrior : Unit
 
     private SpriteRenderer spriteRenderer;
 
-    [SerializeField] private AudioClip attackCrySound;
-    private PlayerSounds playerSounds;
 
     public int multiplier = 1;
 
     [SerializeField] private GameObject particleDeath;
-
 
     public override void Init(UnitTower tower)
     {
@@ -39,16 +36,19 @@ public class UnitWarrior : Unit
 
 
 
-        playerSounds = GetComponent<PlayerSounds>();
 
         spriteRenderer = GetComponent<SpriteRenderer>();
 
         _stateMachine = new Unit_StateMachine(this);
 
+        transform.localScale = new Vector3(
+            transform.localScale.x * multiplier,
+            transform.localScale.y, transform.localScale.z);
+
 
         damage = Convert.ToInt32(baseDamage + baseDamage * tower.buffs.damageBuff);
         moveSpeed = baseMoveSpeed * multiplier + baseMoveSpeed * tower.buffs.speedBuff;
-        attackRate = baseAttackRate - tower.buffs.attackRateBuff;
+        attackRate = baseAttackRate - baseAttackRate * tower.buffs.attackRateBuff;
 
         health = health + Convert.ToInt32(health * tower.buffs.healthBuff);
 
@@ -62,6 +62,7 @@ public class UnitWarrior : Unit
     {
 
         _stateMachine.DoAction();
+
     }
 
     public override void GetDamage(int damage)
@@ -80,8 +81,6 @@ public class UnitWarrior : Unit
     private void Attack()
     {
         _stateMachine.ChangeState(_stateMachine.stateAttack);
-
-        playerSounds?.PlaySound(attackCrySound, 0.8f);
     }
 
     private void Walk()
@@ -96,6 +95,8 @@ public class UnitWarrior : Unit
             attackedUnit = other.GetComponent<Unit>();
             Attack();
         }
+
+       
     }
 
     private void OnTriggerStay2D(Collider2D collision)

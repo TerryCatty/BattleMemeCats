@@ -59,13 +59,33 @@ mergeInto(LibraryManager.library, {
 		player.setData(myObj);
 	},
 
+	
+
 	LoadExtern: function(){
 		player.getData().then(_date =>{
 			const myJSON = JSON.stringify(_date);
 			MyGameInstance.SendMessage("GameManager", "LoadData", myJSON);
 		});
 	},
-
+	IncreaseSpeedTimeExtern: function(){
+		ysdk.adv.showRewardedVideo({
+			callbacks:{
+				onOpen: () => {
+					console.log("Video ad open");
+				},
+				onRewarded: () => {
+					console.log('Rewarded!');
+					MyGameInstance.SendMessage('GameManager','ChangeSpeedTime');
+				},
+				onClose: () => {
+					console.log('Video ad closed.');
+				}, 
+				onError: (e) => {
+					console.log('Error while open video ad:', e);
+				}
+			}
+		})
+	},
 	
 	/*ShowStickyBanner: function(){
 		ysdk.adv.showBannerAdv();

@@ -1,4 +1,5 @@
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using static PlayerSounds;
 
@@ -7,7 +8,7 @@ public class SoundsObject : MonoBehaviour
     private AudioSource audioSource;
 
     private float timeClip;
-    private float volumeMultiplier = 1f;
+    private float volumeMultiplier;
 
    [SerializeField] private TypeSound soundType;
 
@@ -18,20 +19,25 @@ public class SoundsObject : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
         defVolume = audioSource.volume;
 
+
         if (audioSource.playOnAwake)
         {
-            PlaySound(audioSource.clip, defVolume, soundType, SoundsManager.instance, audioSource.loop);
+            PlaySound(audioSource.clip, defVolume, soundType, audioSource.loop);
         }
     }
 
-    public void PlaySound(AudioClip sound, float defaultVolume, TypeSound soundType, SoundsManager soundsManag,  bool isLoop)
+    public void PlaySound(AudioClip sound, float defaultVolume, TypeSound soundType,  bool isLoop)
     {
-        if(soundsManag != null)
-        {
-            if (soundType == TypeSound.Music) volumeMultiplier = soundsManag.GetMusicVolumeMultiplier();
-            else if (soundType == TypeSound.Sound) volumeMultiplier = soundsManag.GetSoundsVolumeMultiplier();
-        }
 
+        switch (soundType)
+        {
+            case TypeSound.Sound:
+                volumeMultiplier = (float)SoundsManager.instance.GetSoundsVolumeMultiplier();
+                break;
+            case TypeSound.Music:
+                volumeMultiplier = (float)SoundsManager.instance.GetMusicVolumeMultiplier();
+                break;
+        }
 
         this.soundType = soundType;
 

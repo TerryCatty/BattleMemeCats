@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2893367691669043756}
   - component: {fileID: 6515592989697527606}
   - component: {fileID: 1444386244750638315}
-  - component: {fileID: 670378773214560966}
+  - component: {fileID: 3554964179469055658}
   m_Layer: 0
   m_Name: UniyTest
   m_TagString: Unit
@@ -78,7 +78,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
+  m_Sprite: {fileID: 4847755763066863512, guid: fe49814a6922a3f4eb377a501f61f0e0, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -127,7 +127,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1, y: 1}
+    oldSize: {x: 0.75, y: 1.35}
     newSize: {x: 1, y: 1}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -154,23 +154,30 @@ MonoBehaviour:
   baseMoveSpeed: 2
   baseDamage: 10
   baseAttackRate: 1
-  attackCrySound: {fileID: 8300000, guid: dd6cea064a5a41245bdea06e468aff72, type: 3}
   multiplier: 1
   particleDeath: {fileID: 1507524764812444917, guid: fd2464e5f9212754fbe190db92eece87, type: 3}
---- !u!114 &670378773214560966
-MonoBehaviour:
+--- !u!95 &3554964179469055658
+Animator:
+  serializedVersion: 7
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2089780594734316287}
   m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6e590d3e3b0e8454595cd1707cde9f1f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  soundType: 1
-  soundObject: {fileID: 4178183447355375285, guid: aa1873f736bdd1f4eaf8a314e13dc091, type: 3}
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: e128efba3726de043a0f270ec868261b, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &3395707586053080085
 GameObject:
   m_ObjectHideFlags: 0
@@ -182,6 +189,7 @@ GameObject:
   - component: {fileID: 2012259452540456515}
   - component: {fileID: 6379308005218817661}
   - component: {fileID: 1699333475384119533}
+  - component: {fileID: 567606398221553404}
   m_Layer: 3
   m_Name: Sword
   m_TagString: Arms
@@ -222,6 +230,8 @@ MonoBehaviour:
   animationIsEnd: 0
   endPos: {x: 0, y: 0, z: 0}
   startPos: {x: 0, y: 0, z: 0}
+  attackCrySound: {fileID: 8300000, guid: dd6cea064a5a41245bdea06e468aff72, type: 3}
+  volume: 0.3
 --- !u!61 &1699333475384119533
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -268,6 +278,20 @@ BoxCollider2D:
   m_AutoTiling: 0
   m_Size: {x: 0.62890244, y: 0.64850914}
   m_EdgeRadius: 0
+--- !u!114 &567606398221553404
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3395707586053080085}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e590d3e3b0e8454595cd1707cde9f1f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  soundType: 1
+  soundObject: {fileID: 4178183447355375285, guid: aa1873f736bdd1f4eaf8a314e13dc091, type: 3}
 --- !u!1 &4396744851110978950
 GameObject:
   m_ObjectHideFlags: 0
@@ -344,7 +368,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 2
   m_Sprite: {fileID: 7482667652216324306, guid: 311925a002f4447b3a28927169b83ea6, type: 3}
-  m_Color: {r: 0.6420149, g: 0.8574716, b: 0.8792453, a: 1}
+  m_Color: {r: 0.6420149, g: 0.8574716, b: 0.8792453, a: 0}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0

@@ -15,8 +15,17 @@ public class SoundsManager : MonoBehaviour
 
     public static event Action<SoundsManager> ChangeVolume;
 
-    private void Start()
+    private void Awake()
     {
+        if(instance == null)
+        {
+            instance = this;
+        }
+        else
+        {
+            Destroy(this);
+        }
+
         DontDestroyOnLoad(gameObject);
     }
     public void SwitchVolumeMusic()

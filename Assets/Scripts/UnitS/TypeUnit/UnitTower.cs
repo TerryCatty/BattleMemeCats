@@ -28,6 +28,8 @@ public class UnitTower : Unit
     private float timer;
     private bool canSpawn;
 
+    [SerializeField] private bool undead = false;
+
     [SerializeField] private bool destroyUnitOnCollision = false;
 
     [SerializeField] private int maxCountUnits = 25;
@@ -43,6 +45,7 @@ public class UnitTower : Unit
     [SerializeField] private Image healthBar;
 
     private UnitTower towerOpponent;
+    private int indexChoosingUnit;
 
     public void Init()
     {
@@ -53,6 +56,7 @@ public class UnitTower : Unit
         isDead = false;
 
         DeleteAllUnits();
+        HealthBar();
 
         UnitTower[] towers = transform.parent.GetComponentsInChildren<UnitTower>();
 
@@ -104,15 +108,27 @@ public class UnitTower : Unit
 
     private void TimeToSpawn()
     {
+        float fill = 0f;
+
         if (timer >= 0)
         {
             timer -= Time.deltaTime;
             canSpawn = false;
+
+            float delta = 1f / reloadSpawnRate;
+
+
+            fill = delta * timer;
+
         }
         if (timer <= 0 && canSpawn == false)
         {
             canSpawn = true;
         }
+
+
+        if(colorTeam == TeamColor.Blue)
+            GameManager.Instance.ChangeFillBar(fill);
     }
     public void SpawnProcess()
     {
@@ -165,6 +181,7 @@ public class UnitTower : Unit
     public void IncreaseKillsCount()
     {
         kills++;
+        if (colorTeam == TeamColor.Blue) GameManager.Instance.CheckColorUnits(indexChoosingUnit);
     }
 
     public void IncreaseKillsOpponent()
@@ -178,16 +195,7 @@ public class UnitTower : Unit
         countUnits++;
     }
 
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if(collision.GetComponent<Unit>() 
-            && collision.GetComponent<Unit>().colorTeam != colorTeam
-            && destroyUnitOnCollision)
-        {
-            Destroy(collision.transform.parent);
-        }
-    }
-
+    
     public override void Heal(int value)
     {
         base.Heal(value);
@@ -195,6 +203,7 @@ public class UnitTower : Unit
     }
     public override void GetDamage(int damage)
     {
+        if (undead) return;
         base.GetDamage(damage);
         HealthBar();
     }
@@ -202,10 +211,12 @@ public class UnitTower : Unit
     private void HealthBar()
     {
 
-        float delta = 100 / baseHealth;
+        float delta = 100.0f / baseHealth;
 
-        if (healthBar != null)
-            healthBar.fillAmount = delta * health / 100;
+        if (healthBar == null) return;
+
+        float fill = delta * health / 100.0f;
+        healthBar.fillAmount = fill;
     }
 
     protected override void CheckDeath()
@@ -225,10 +236,13 @@ public class UnitTower : Unit
         if(index < unitsSwitch.Length && unitsSwitch[index].killsRequire <= kills)
         {
             unit = unitsSwitch[index].unit;
+            indexChoosingUnit = index;
         }
+        if (colorTeam == TeamColor.Blue) GameManager.Instance.CheckColorUnits(indexChoosingUnit);
     }
 
-   
+    public UnitsSwitch[] GetUnitsCount() { return unitsSwitch; }
+    public int GetCountKills() { return kills; }
 }
 
 

@@ -7,7 +7,6 @@ public class PlayerSounds : MonoBehaviour
 
     [SerializeField] private SoundsObject soundObject;
 
-    private SoundsManager soundsManager;
 
     [Serializable]
     public enum TypeSound
@@ -19,21 +18,36 @@ public class PlayerSounds : MonoBehaviour
 
     protected float volumeMultiplier = 1f;
 
-   /* [SerializeField] private bool playOnStart = false;
-    [SerializeField] private bool playLoop = false;
+    /* [SerializeField] private bool playOnStart = false;
+     [SerializeField] private bool playLoop = false;
+
+     private void Start()
+     {
+         if (playOnStart)
+         {
+             PlaySound(GetComponent<AudioSource>().clip, GetComponent<AudioSource>().volume, playLoop);
+         }
+     }*/
 
     private void Start()
     {
-        if (playOnStart)
+        switch (soundType)
         {
-            PlaySound(GetComponent<AudioSource>().clip, GetComponent<AudioSource>().volume, playLoop);
+            case TypeSound.Sound:
+                volumeMultiplier = SoundsManager.instance.GetSoundsVolumeMultiplier();
+                break;
+            case TypeSound.Music:
+                volumeMultiplier = SoundsManager.instance.GetMusicVolumeMultiplier();
+                break;
         }
-    }*/
+
+    }
 
 
     public void PlaySound(AudioClip sound, float defaultVolume, bool isLoop = false)
     {
-        SpawnSound().PlaySound(sound, defaultVolume, soundType, soundsManager, isLoop);
+        SpawnSound().PlaySound(sound, defaultVolume, soundType, isLoop);
+        Debug.Log(defaultVolume);
     }
     
     private SoundsObject SpawnSound()
@@ -41,20 +55,6 @@ public class PlayerSounds : MonoBehaviour
         SoundsObject sound = Instantiate(soundObject, transform.position, Quaternion.identity);
 
         return sound;
-    }
-
-    private void OnEnable()
-    {
-        SoundsManager.ChangeVolume += (SoundsManager soundsManag) => {
-            soundsManager = soundsManag;
-        };
-    }
-
-    private void OnDisable()
-    {
-        SoundsManager.ChangeVolume -= (SoundsManager soundsManag) => {
-            soundsManager = soundsManag;
-        };
     }
 
 }

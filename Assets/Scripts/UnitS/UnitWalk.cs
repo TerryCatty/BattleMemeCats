@@ -13,6 +13,8 @@ public class UnitWalk : UnitState
         moveSpeed = unit.moveSpeed;
         parent = unit.transform.parent;
         rb = parent.GetComponent<Rigidbody2D>();
+
+        anim.SetBool("isWalk", true);
     }
     public override void UpdateAction()
     {
@@ -22,6 +24,7 @@ public class UnitWalk : UnitState
 
     public override void Exit()
     {
+        anim.SetBool("isWalk", false);
         rb.velocityX = 0;
     }
 }

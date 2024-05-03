@@ -8,6 +8,15 @@ public class Sword : Arms
     [SerializeField] protected Vector3 startPos;
 
 
+    private PlayerSounds playerSounds;
+    [SerializeField] private AudioClip attackCrySound;
+    public float volume;
+
+    private void Start()
+    {
+
+        playerSounds = GetComponent<PlayerSounds>();
+    }
 
     protected override void AttackAnimation()
     {
@@ -21,6 +30,8 @@ public class Sword : Arms
     {
         animationIsEnd = false;
         transform.DOLocalMove(endPos, timeAttack);
+
+        playerSounds.PlaySound(attackCrySound, volume);
         yield return new WaitForSeconds(timeAttack);
         isHitting = false;
         armsKeeper.CheckEnemy();
